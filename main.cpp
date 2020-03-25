@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
 	SDL_UpdateWindowSurface(window);
 
-	SDL_Delay(5000);
+	SDL_Delay(15000);
 
 	return 0;
 }
