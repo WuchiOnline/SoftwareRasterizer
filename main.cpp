@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
 		// first example: (red pixel at 100,100);
 		putpixel(screen, 100, 100, SDL_MapRGB(screen->format, 255, 0, 0));
-		// plot_pixel_ndc(screen, 200, 200, SDL_MapRGB(screen->format, 250, 0, 0), window); // wip test
+		plot_pixel_ndc(screen, 100, 100, SDL_MapRGB(screen->format, 250, 0, 0), window); // wip test
 
 		SDL_UpdateWindowSurface(window);
 	}
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void plot_pixel_ndc(SDL_Surface *surface, int x, int y, Uint32 pixel, SDL_Window *targetWindow) // work in progress
+void plot_pixel_ndc(SDL_Surface *surface, int x_ndc, int y_ndc, Uint32 pixel, SDL_Window *targetWindow) // work in progress
 {
 	int bpp = surface->format->BytesPerPixel;
 
@@ -53,7 +53,18 @@ void plot_pixel_ndc(SDL_Surface *surface, int x, int y, Uint32 pixel, SDL_Window
 
 	// convert ndc back to dc formula, derived from reversing dc to ndc formula
 
-	Uint8 *p = (Uint8 *)surface->pixels + ((y*height)/baseHeight) * surface->pitch + ((x*width)/baseWidth) * bpp;
+	int x_dc = ((x_ndc + 1) / 2)*(width);
+	int y_dc = ((y_ndc + 1) / 2)*(height);
+
+	// convert to int
+	//int yetAnotherInt = 0;
+
+	//if (aFloat >= 0)
+	//	yetAnotherInt = (int)(aFloat + 0.5);
+	//else
+	//	yetAnotherInt = (int)(aFloat - 0.5);
+
+	Uint8 *p = (Uint8 *)surface->pixels + y_dc * surface->pitch + x_dc * bpp;
 
 	switch (bpp) {
 	case 1:
