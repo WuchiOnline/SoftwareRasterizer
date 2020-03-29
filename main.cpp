@@ -2,7 +2,7 @@
 #include "SDL.h"
 
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-void plot_pixel_ndc(SDL_Surface *surface, int x_ndc, int y_ndc, Uint32 pixel, SDL_Window *targetWindow);
+void plot_pixel_ndc(SDL_Surface *surface, float x_ndc, float y_ndc, Uint32 pixel, SDL_Window *targetWindow);
 
 int main(int argc, char *argv[])
 {
@@ -24,12 +24,9 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		// plot pixel at any location and any color.
-		// putpixel(screen, x, y, SDL_MapRGB(screen->format, r, g, b));
-
-		// first example: (red pixel at 100,100);
-		putpixel(screen, 100, 100, SDL_MapRGB(screen->format, 255, 0, 0));
-		// plot_pixel_ndc(screen, 100, 100, SDL_MapRGB(screen->format, 250, 0, 0), window); // wip test
+		// base DC example: red pixel at 100,100;
+		// putpixel(screen, 100, 100, SDL_MapRGB(screen->format, 255, 0, 0));
+		plot_pixel_ndc(screen, 0, 0, SDL_MapRGB(screen->format, 250, 0, 0), window); // wip test
 
 		SDL_UpdateWindowSurface(window);
 	}
@@ -38,17 +35,32 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void plot_pixel_ndc(SDL_Surface *surface, int x_ndc, int y_ndc, Uint32 pixel, SDL_Window *targetWindow) // work in progress
+void plot_pixel_ndc(SDL_Surface *surface, float x_ndc, float y_ndc, Uint32 pixel, SDL_Window *targetWindow) // work in progress
 {
 	int bpp = surface->format->BytesPerPixel;
 
 	int width = SDL_GetWindowSurface(targetWindow)->w;
 	int height = SDL_GetWindowSurface(targetWindow)->h;
 
-	int x_dc = ((x_ndc + 1) / 2)*(width);
-	int y_dc = ((y_ndc + 1) / 2)*(height);
+	float x_dc = ((x_ndc + 1) / 2)*(width);
+	float y_dc = ((y_ndc + 1) / 2)*(height);
 
-	Uint8 *p = (Uint8 *)surface->pixels + y_dc * surface->pitch + x_dc * bpp;
+	int x_dc_int;
+	int y_dc_int;
+
+	// convert float to int
+	if (x_dc >= 0)
+		x_dc_int = (int)(x_dc + 0.5);
+	else
+		x_dc_int = (int)(x_dc - 0.5);
+
+	if (y_dc >= 0)
+		y_dc_int = (int)(y_dc + 0.5);
+	else
+		y_dc_int = (int)(y_dc - 0.5);
+
+
+	Uint8 *p = (Uint8 *)surface->pixels + y_dc_int * surface->pitch + x_dc_int * bpp;
 
 	switch (bpp) {
 	case 1:
