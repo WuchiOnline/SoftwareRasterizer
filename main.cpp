@@ -6,7 +6,6 @@ void plot_pixel_ndc(SDL_Surface *surface, float x_ndc, float y_ndc, Uint32 pixel
 
 int main(int argc, char *argv[])
 {
-
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Window *window = SDL_CreateWindow("Software Rasterizer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
 	SDL_SetWindowResizable(window, SDL_TRUE);
@@ -24,41 +23,53 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		// base DC example: red pixel at 100,100;
+		// Assignment one, DC example: red pixel at 100,100;
 		// putpixel(screen, 100, 100, SDL_MapRGB(screen->format, 255, 0, 0));
-		plot_pixel_ndc(screen, 0, 0, SDL_MapRGB(screen->format, 250, 0, 0), window); // wip test
+
+		// Assignment Two: NDC --> DC example: Plot red pixel at center of screen using NDC inputs, regardless of window size.
+		plot_pixel_ndc(screen, 0, 0, SDL_MapRGB(screen->format, 250, 0, 0), window);
+
+		// Bottom Left Corner test.
+		plot_pixel_ndc(screen, -1, 1, SDL_MapRGB(screen->format, 250, 0, 0), window);
+
+		// Invalid input test.
+		plot_pixel_ndc(screen, -1000, 1000, SDL_MapRGB(screen->format, 250, 0, 0), window);
 
 		SDL_UpdateWindowSurface(window);
 	}
-
 	SDL_Quit();
 	return 0;
 }
 
 void plot_pixel_ndc(SDL_Surface *surface, float x_ndc, float y_ndc, Uint32 pixel, SDL_Window *targetWindow) // work in progress
 {
+	// Handles X and Y inputs that are not in NDC space.
+	if (abs(x_ndc) > 1 || abs(y_ndc) > 1)
+	{
+		std::cout << "plot_pixel_ndc function received invalid inputs (X or Y was not between -1 and 1).";
+		return;
+	}
+
 	int bpp = surface->format->BytesPerPixel;
 
-	int width = SDL_GetWindowSurface(targetWindow)->w;
-	int height = SDL_GetWindowSurface(targetWindow)->h;
+	int currentWindowWidth = SDL_GetWindowSurface(targetWindow)->w;
+	int currentWindowHeight = SDL_GetWindowSurface(targetWindow)->h;
 
-	float x_dc = ((x_ndc + 1) / 2)*(width);
-	float y_dc = ((y_ndc + 1) / 2)*(height);
+	float x_dc = ((x_ndc + 1) / 2)*(currentWindowWidth);
+	float y_dc = ((y_ndc + 1) / 2)*(currentWindowHeight);
 
-	int x_dc_int;
-	int y_dc_int;
+	int x_dc_int = round(x_dc);
+	int y_dc_int = round(y_dc);
 
-	// convert float to int
-	if (x_dc >= 0)
-		x_dc_int = (int)(x_dc + 0.5);
-	else
-		x_dc_int = (int)(x_dc - 0.5);
-
-	if (y_dc >= 0)
-		y_dc_int = (int)(y_dc + 0.5);
-	else
-		y_dc_int = (int)(y_dc - 0.5);
-
+	// Currently throws error when X or Y is exactly -1.
+	// Error does not occur when X or Y is .99, or -1. Not sure why! Would love some guidance on this.
+	// In the meantime, this will fix this edge-case by decrementing the converted value.
+	if (x_dc_int == currentWindowWidth) {
+		x_dc_int--;
+	}
+	if (y_dc_int == currentWindowHeight) {
+		y_dc_int--;
+	}
 
 	Uint8 *p = (Uint8 *)surface->pixels + y_dc_int * surface->pitch + x_dc_int * bpp;
 
