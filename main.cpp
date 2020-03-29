@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
 void plot_pixel_ndc(SDL_Surface *surface, float x_ndc, float y_ndc, Uint32 pixel, SDL_Window *targetWindow) // work in progress
 {
-	// Handles X and Y inputs that are not in NDC space.
+	// Handles X and Y inputs that are not between -1 and 1 (NDC space).
 	if (abs(x_ndc) > 1 || abs(y_ndc) > 1)
 	{
 		std::cout << "plot_pixel_ndc function received invalid inputs (X or Y was not between -1 and 1).";
@@ -61,9 +61,9 @@ void plot_pixel_ndc(SDL_Surface *surface, float x_ndc, float y_ndc, Uint32 pixel
 	int x_dc_int = round(x_dc);
 	int y_dc_int = round(y_dc);
 
-	// Currently throws error when X or Y is exactly -1.
-	// Error does not occur when X or Y is .99, or -1. Not sure why! Would love some guidance on this.
-	// In the meantime, this will fix this edge-case by decrementing the converted value.
+	// Currently throws error when X or Y is exactly 1. 
+	// Error does not occur when X or Y is .99, or -1. Not sure why! Will continue to ponder.
+	// In the meantime, I've added some logic that fixes this edge-case by decrementing the converted value.
 	if (x_dc_int == currentWindowWidth) {
 		x_dc_int--;
 	}
